@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Python 2->3 libraries that were renamed.
 try:
@@ -219,7 +219,7 @@ def main():
     print (VERSION)
     parser = argparse.ArgumentParser()
     parser.add_argument('--language', '-l', default="c++14", help="The programming language you want to use "
-            "(c++14, go)")
+            "(c++14, go, kotlin)")
     parser.add_argument('contest', help="")
     args = parser.parse_args()
 
