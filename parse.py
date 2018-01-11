@@ -22,7 +22,7 @@ import argparse
 ###########################
 language_params = {
         'c++14' : {
-            'TEMPLATE'    : 'main.cc',
+            'TEMPLATE'    : '/home/ryan/bin/main.cc',
             'DEBUG_FLAGS' : '-DDEBUG',
             'COMPILE_CMD' : 'g++ -g -std=c++14 -Wall $DBG',
             'RUN_CMD'     : './a.out'
@@ -213,6 +213,44 @@ def generate_test_script(folder, language, num_tests, problem):
             .format(num_tests, BOLD, NORM, GREEN_F, RED_F, TIME_CMD, TIME_AP, run_cmd=param["RUN_CMD"]))
     call(['chmod', '+x', folder + 'test.sh'])
 
+    with open(folder + 'pytest.sh', 'w') as test:
+        test.write(
+            ('#!/bin/bash\n'
+            'INPUT_NAME='+SAMPLE_INPUT+'\n'
+            'OUTPUT_NAME='+SAMPLE_OUTPUT+'\n'
+            'MY_NAME='+MY_OUTPUT+'\n'
+            'rm -R $MY_NAME* &>/dev/null\n').format(problem, param["TEMPLATE"].split('.')[1]))
+        test.write(
+            'for test_file in $INPUT_NAME*\n'
+            'do\n'
+            '    i=$((${{#INPUT_NAME}}))\n'
+            '    test_case=${{test_file:$i}}\n'
+            '    if ! {5} {run_cmd} < $INPUT_NAME$test_case > $MY_NAME$test_case; then\n'
+            '        echo {1}{4}Sample test \#$test_case: Runtime Error{2} {6}\n'
+            '        echo ========================================\n'
+            '        echo Sample Input \#$test_case\n'
+            '        cat $INPUT_NAME$test_case\n'
+            '    else\n'
+            '        if diff --brief --ignore-trailing-space $MY_NAME$test_case $OUTPUT_NAME$test_case; then\n'
+            '            echo {1}{3}Sample test \#$test_case: Accepted{2} {6}\n'
+            '        else\n'
+            '            echo {1}{4}Sample test \#$test_case: Wrong Answer{2} {6}\n'
+            '            echo ========================================\n'
+            '            echo Sample Input \#$test_case\n'
+            '            cat $INPUT_NAME$test_case\n'
+            '            echo ========================================\n'
+            '            echo Sample Output \#$test_case\n'
+            '            cat $OUTPUT_NAME$test_case\n'
+            '            echo ========================================\n'
+            '            echo My Output \#$test_case\n'
+            '            cat $MY_NAME$test_case\n'
+            '            echo ========================================\n'
+            '        fi\n'
+            '    fi\n'
+            'done\n'
+            .format(num_tests, BOLD, NORM, GREEN_F, RED_F, TIME_CMD, TIME_AP, run_cmd="python3 main.py"))
+    call(['chmod', '+x', folder + 'pytest.sh'])
+
 
 # Main function.
 def main():
@@ -236,15 +274,17 @@ def main():
     TEMPLATE = language_params[language]["TEMPLATE"]
     for index, problem in enumerate(content.problems):
         print ('Downloading Problem %s: %s...' % (problem, content.problem_names[index]))
-        folder = '%s-%s/%s/' % (contest, language, problem)
+        folder = '%s/%s/' % (contest, problem)
         call(['mkdir', '-p', folder])
         call(['cp', '-n', TEMPLATE, '%s/%s.%s' % (folder, problem, TEMPLATE.split('.')[1])])
+        call(['touch', folder + 'main.py'])
         num_tests = parse_problem(folder, contest, problem)
         print('%d sample test(s) found.' % num_tests)
         generate_test_script(folder, language, num_tests, problem)
         print ('========================================')
 
     print ('Use ./test.sh to run sample tests in each directory.')
+    print ('Use ./pytest.sh to run sample tests for python in each directory.')
 
 
 if __name__ == '__main__':
