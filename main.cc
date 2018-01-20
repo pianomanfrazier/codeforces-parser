@@ -7,13 +7,6 @@ using namespace std;
 #define DFOR(i, j, k) for(int i=j; i>k; i--)
 #define DFORE(i, j, k) for(int i=j; i>=k; i--)
 
-// Input macros
-#define SD(n)                       scanf("%d",&n)
-#define SC(n)                       scanf("%c",&n)
-#define SL(n)                       scanf("%lld",&n)
-#define SF(n)                       scanf("%lf",&n)
-#define SS(n)                       scanf("%s",n)
-
 //for vectors
 #define pb push_back
 typedef vector<int> vi;
@@ -82,7 +75,7 @@ typedef unsigned short us;
 const double PI(3.1415926535897932384626);
 
 #ifdef DEBUG
-     #define debug(args...)            {dbg,args; cerr<<endl;}
+     #define debug(args...)            {dbg,"DEBUG:",args; cerr<<endl;}
 #else
     #define debug(args...)              // Just strip off all debug tokens
 #endif
@@ -91,7 +84,6 @@ struct debugger
 {
   template<typename T> debugger& operator , (const T& v)
   {
-    cerr<<"DEBUG: ";
     cerr<<v<<" ";
     return *this;
   }
